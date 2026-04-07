@@ -1,0 +1,41 @@
+# Git and version control
+.git
+.gitignore
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env_dir/
+
+# Environment variables (Never copy secrets into the image)
+.env
+.env.local
+.env.*
+
+# Tests (Not needed in production image)
+tests/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
