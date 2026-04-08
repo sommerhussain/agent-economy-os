@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Python SDK**: An official, async-first Python client (`UAEOSClient`) with connection pooling, exponential backoff retries, and structured error handling.
 - **Usage Analytics**: Thread-safe in-memory usage tracking, recent activity logging, and a global `/stats` dashboard.
 - **Traffic Control**: Redis-ready rate limiting architecture enforcing limits per agent.
+- **Caching**: Redis-ready identity caching layer for credentials and scopes.
 - **Security**: API Key authentication middleware, CORS configuration, custom security headers, and structured error reporting (`UAEError`).
 - **Compliance Packs**: Comprehensive audit logging with unique `adt_` transaction IDs.
 - **Infrastructure**: Centralized Pydantic Settings (`app/config.py`), Dockerized deployment setup, and one-click Railway configuration (`railway.toml`).

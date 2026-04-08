@@ -115,6 +115,7 @@ Welcome to the foundational release of the Universal Agent Economy OS! Over the 
 - **A2A Routing**: Intelligent Agent-to-Agent routing stub alongside downstream execution (`httpx`).
 - **Compliance Packs**: Audit logging and unique `adt_` ID generation.
 - **Traffic Control**: Redis-ready rate limiting (10 req/min) with proper 429 responses.
+- **Caching**: Redis-ready identity caching layer for credentials and scopes.
 - **Security**: API Key authentication (`Authorization: Bearer` and `X-API-Key`), CORS middleware, custom security headers, and structured error reporting (`UAEError`).
 - **Usage Analytics Dashboard**: Thread-safe in-memory usage tracking, recent activity logging, and a global `/stats` dashboard.
 - **Python SDK**: An official, async-first Python client (`UAEOSClient`) with connection pooling, exponential backoff retries, and structured error handling.
@@ -182,6 +183,7 @@ The application is configured entirely via environment variables (managed by `ap
 | `BILLING_RATE_PER_CALL` | `0.01` | Flat rate applied per API call for usage-based billing. |
 | `RATE_LIMIT_MAX_REQUESTS` | `10` | Maximum number of requests an agent can make within the window. |
 | `RATE_LIMIT_WINDOW_SECONDS` | `60` | Time window in seconds for the rate limit. |
+| `REDIS_URL` | `""` | Redis connection string (e.g., `redis://localhost:6379`). Leave empty for in-memory fallback. |
 
 *Note: If Supabase variables are missing, the app gracefully falls back to a simulation mode for testing.*
 

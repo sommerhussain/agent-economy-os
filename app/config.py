@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     BILLING_RATE_PER_CALL: float = 0.01
     # Temporary default for initial Railway deployment. Make required in production.
     WEBHOOK_SECRET: str = ""
+    REDIS_URL: str = ""  # Redis connection string (e.g., redis://localhost:6379). Leave empty for in-memory fallback.
     RATE_LIMIT_MAX_REQUESTS: int = 10
     RATE_LIMIT_WINDOW_SECONDS: int = 60
     ANALYTICS_ACTIVE_WINDOW_SECONDS: int = 86400
