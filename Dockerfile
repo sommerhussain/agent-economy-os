@@ -25,4 +25,4 @@ EXPOSE 8000
 # Run the application using Uvicorn
 # We bind to 0.0.0.0 to allow external access (required by most PaaS providers like Render/Railway)
 # Use the PORT environment variable if set, otherwise default to 8000
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
