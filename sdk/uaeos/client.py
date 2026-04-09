@@ -224,6 +224,31 @@ class UAEOSClient:
             
         return await self._request("POST", "/proxy/execute", json=payload)
 
+    async def execute_payment(self, agent_id: str, payment_amount: float, target_agent_id: str, action: str = "payment") -> Dict[str, Any]:
+        """
+        Executes a direct A2A payment without a downstream HTTP call.
+        This uses the A2A routing stub combined with the settlement engine.
+        
+        Args:
+            agent_id: The calling agent's ID
+            payment_amount: The x402 micropayment amount to settle
+            target_agent_id: The destination agent ID
+            action: Optional action description
+            
+        Returns:
+            Dict containing execution success, settlement status, and audit ID.
+        """
+        tool_call = {
+            "target_agent_id": target_agent_id,
+            "action": action
+        }
+        return await self.execute(
+            agent_id=agent_id,
+            tool_call=tool_call,
+            credential_type="stripe_live", # Default to live payment credential
+            payment_amount=payment_amount
+        )
+
     async def get_scopes(self, agent_id: str) -> Dict[str, Any]:
         """
         Retrieves all granted scopes for an agent across all their credentials.

@@ -79,9 +79,22 @@ async def main():
             )
             print("Execution Result:", result)
             
-            # 4. Get Usage Stats from the Analytics Engine
+            # 4. Execute a direct A2A payment (no downstream HTTP call)
+            payment_result = await client.execute_payment(
+                agent_id="agent_sdk_1",
+                payment_amount=5.00,
+                target_agent_id="agent_target_3",
+                action="data_purchase"
+            )
+            print("Payment Result:", payment_result)
+            
+            # 5. Get Usage Stats from the Analytics Engine
             stats = await client.get_stats()
             print("Global Stats:", stats)
+            
+            # 6. Generate a usage-based invoice for the agent
+            invoice = await client.get_invoice(agent_id="agent_sdk_1")
+            print("Generated Invoice:", invoice)
             
         except RateLimitError as e:
             # Raised if the agent exceeds the rate limit and max_retries are exhausted
