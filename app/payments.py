@@ -1,47 +1,72 @@
 """
 Universal Agent Economy OS - Payment Gateway Engine
 
-This module handles the settlement of x402 micropayments. It acts as a robust stub
-for real payment gateways (like Stripe) and crypto networks (like Lightning).
-Future-proofed for real webhooks and settlement logic (Day 24).
+This module handles the settlement of x402 micropayments. It provides a real
+Stripe integration alongside a robust simulation stub for local development.
 """
 import uuid
 import hmac
 import hashlib
 import logging
+import stripe
 from typing import Optional, Tuple
 from pydantic import BaseModel, Field
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-def handle_payment(payment_amount: float, agent_id: str) -> Tuple[bool, Optional[str], float]:
+def simulate_payment(payment_amount: float, agent_id: str) -> Tuple[bool, Optional[str], float]:
     """
-    Processes a payment via the configured gateway (Stripe or Lightning).
-    Currently acts as a robust stub for future real integrations.
-    
-    Returns:
-        Tuple containing (success, transaction_id, amount)
+    Simulates a payment for testing and local development.
+    """
+    transaction_id = f"tx_sim_{uuid.uuid4().hex}"
+    logger.info(f"Processed simulated payment of {payment_amount} for agent {agent_id}. TX: {transaction_id}")
+    return True, transaction_id, payment_amount
+
+def process_payment(payment_amount: float, agent_id: str) -> Tuple[bool, Optional[str], float]:
+    """
+    Processes a real payment using the Stripe SDK.
+    """
+    if not settings.STRIPE_SECRET_KEY:
+        logger.error("STRIPE_SECRET_KEY is not configured for live mode.")
+        return False, None, payment_amount
+        
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    try:
+        # Convert amount to cents for Stripe
+        amount_cents = int(payment_amount * 100)
+        
+        # Using PaymentIntent for modern Stripe integration
+        intent = stripe.PaymentIntent.create(
+            amount=amount_cents,
+            currency="usd",
+            description=f"x402 micropayment for agent {agent_id}",
+            payment_method="pm_card_visa", # Hardcoded for demonstration, in a real system this would be passed
+            confirm=True,
+            automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
+        )
+        logger.info(f"Processed real Stripe payment of {payment_amount} for agent {agent_id}. TX: {intent.id}")
+        return True, intent.id, payment_amount
+    except stripe.StripeError as e:
+        logger.error(f"Stripe payment failed for agent {agent_id}: {e}")
+        return False, None, payment_amount
+    except Exception as e:
+        logger.error(f"Unexpected error during Stripe payment for agent {agent_id}: {e}")
+        return False, None, payment_amount
+
+def execute_payment(payment_amount: float, agent_id: str) -> Tuple[bool, Optional[str], float]:
+    """
+    Routes the payment to either the real Stripe integration or the simulation
+    based on the STRIPE_MODE configuration.
     """
     if payment_amount <= 0:
         logger.warning(f"Invalid payment amount: {payment_amount} for agent {agent_id}. Must be greater than 0.")
         return False, None, payment_amount
 
-    # Future-proofed routing based on config
-    if settings.LIGHTNING_ENABLED:
-        # Simulate Lightning Network micropayment
-        transaction_id = f"tx_ln_{uuid.uuid4().hex}"
-        logger.info(f"Processed Lightning payment of {payment_amount} for agent {agent_id}. TX: {transaction_id}")
-    elif settings.STRIPE_API_KEY:
-        # Simulate real Stripe charge
-        transaction_id = f"tx_stripe_{uuid.uuid4().hex}"
-        logger.info(f"Processed Stripe payment of {payment_amount} for agent {agent_id}. TX: {transaction_id}")
+    if settings.STRIPE_MODE == "live":
+        return process_payment(payment_amount, agent_id)
     else:
-        # Default simulation fallback
-        transaction_id = f"tx_sim_{uuid.uuid4().hex}"
-        logger.info(f"Processed simulated payment of {payment_amount} for agent {agent_id}. TX: {transaction_id}")
-
-    return True, transaction_id, payment_amount
+        return simulate_payment(payment_amount, agent_id)
 
 class PaymentWebhookPayload(BaseModel):
     """
@@ -54,12 +79,11 @@ class PaymentWebhookPayload(BaseModel):
 
 def verify_webhook_signature(payload_body: bytes, signature_header: str) -> bool:
     """
-    Verifies the HMAC signature of an incoming webhook using the WEBHOOK_SECRET.
-    This is a basic implementation future-proofed for Stripe/Lightning webhooks.
+    Verifies the HMAC signature of an incoming webhook using the STRIPE_WEBHOOK_SECRET.
     """
-    secret = settings.WEBHOOK_SECRET
+    secret = settings.STRIPE_WEBHOOK_SECRET or settings.WEBHOOK_SECRET
     if not secret:
-        logger.warning("WEBHOOK_SECRET is not configured. Rejecting webhook.")
+        logger.warning("Webhook secret is not configured. Rejecting webhook.")
         return False
         
     if not signature_header:

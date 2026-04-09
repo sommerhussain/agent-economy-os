@@ -8,7 +8,7 @@ downstream A2A tool execution, audit logging, and usage metering.
 import uuid
 import logging
 from app.routing import route_tool_call
-from app.payments import handle_payment
+from app.payments import execute_payment
 from typing import Any, Dict, Optional, Tuple
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
@@ -143,7 +143,7 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
     settled = False
     transaction_id = None
     if request.payment_amount is not None:
-        settled, transaction_id, _ = handle_payment(request.payment_amount, request.agent_id)
+        settled, transaction_id, _ = execute_payment(request.payment_amount, request.agent_id)
 
     # 3. Tool Execution Engine
     # Route the injected tool_call to the target A2A endpoint

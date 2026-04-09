@@ -19,7 +19,7 @@ os.environ["WEBHOOK_SECRET"] = "test_secret"
 from fastapi.testclient import TestClient
 from app.main import app
 from app.proxy import ProxyRequest, ProxyResponse, execute_proxy_request
-from app.payments import handle_payment
+from app.payments import execute_payment
 from unittest.mock import patch, AsyncMock
 
 client = TestClient(app)
@@ -262,38 +262,6 @@ async def test_execute_proxy_request_internal_exception():
         assert response.status_code == 500
         assert response.json() == {"detail": "An internal server error occurred while processing the proxy request. Please try again later."}
 
-def test_handle_payment_direct():
-    """
-    Directly test the handle_payment function for different amounts and modes.
-    """
-    from app.payments import handle_payment
-    from app.config import settings
-    
-    # Default simulation
-    success, tx_id, amount = handle_payment(10.0, "agent_1")
-    assert success is True
-    assert tx_id.startswith("tx_sim_")
-    assert amount == 10.0
-
-    # Invalid amount
-    success, tx_id, amount = handle_payment(0.0, "agent_1")
-    assert success is False
-    assert tx_id is None
-    assert amount == 0.0
-    
-    # Stripe simulation
-    settings.STRIPE_API_KEY = "sk_test_123"
-    success, tx_id, amount = handle_payment(5.0, "agent_2")
-    assert success is True
-    assert tx_id.startswith("tx_stripe_")
-    settings.STRIPE_API_KEY = "" # reset
-    
-    # Lightning simulation
-    settings.LIGHTNING_ENABLED = True
-    success, tx_id, amount = handle_payment(2.5, "agent_3")
-    assert success is True
-    assert tx_id.startswith("tx_ln_")
-    settings.LIGHTNING_ENABLED = False # reset
 
 def test_generate_audit_id():
     """

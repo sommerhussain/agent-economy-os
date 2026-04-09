@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str = ""
     ALLOWED_ORIGINS: List[str] = ["*"]
     STRIPE_API_KEY: str = ""
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_MODE: str = "simulation"
     LIGHTNING_ENABLED: bool = False
     BILLING_RATE_PER_CALL: float = 0.01
     # Temporary default for initial Railway deployment. Make required in production.
