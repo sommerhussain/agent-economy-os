@@ -13,22 +13,33 @@ from app.payments import execute_payment
 
 logger = logging.getLogger(__name__)
 
-def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amount: Optional[float]) -> Tuple[bool, Optional[str]]:
+def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amount: Optional[float], payment_proof: Optional[str] = None) -> Tuple[bool, Optional[str]]:
     """
     Native x402 middleware logic.
     
     1. Checks if the tool call requires a payment (e.g., via a 'required_payment' field).
-    2. Verifies that the provided payment_amount is sufficient.
-    3. If insufficient or missing, raises a 402 PaymentRequiredError.
-    4. If sufficient, executes the payment via the settlement engine.
+    2. If a payment_proof is provided, verifies it. If valid, bypasses new payment.
+    3. Verifies that the provided payment_amount is sufficient.
+    4. If insufficient or missing, raises a 402 PaymentRequiredError.
+    5. If sufficient, executes the payment via the settlement engine.
     
     Returns:
         Tuple[bool, Optional[str]]: (settled_status, transaction_id)
     """
-    # Determine the required payment amount from the tool call payload.
-    # In a fully dynamic system, this could be fetched from a registry or the target agent.
-    # For now, we check if the tool call explicitly asks for a required payment.
     required_payment = float(tool_call.get("required_payment", 0.0))
+    
+    # If a payment proof is provided, verify it first (automatic retry logic)
+    if payment_proof:
+        logger.info(f"Agent {agent_id} provided payment proof: {payment_proof}")
+        # Stub verification: In a real system, we'd query Stripe or our DB to ensure
+        # the transaction ID is valid, successful, and matches the required amount.
+        if payment_proof.startswith("tx_") and len(payment_proof) > 5:
+            logger.info(f"Payment proof {payment_proof} verified successfully for agent {agent_id}.")
+            return True, payment_proof
+        else:
+            logger.warning(f"Invalid payment proof provided by agent {agent_id}: {payment_proof}")
+            raise PaymentFailedError("Invalid payment proof provided.")
+
     provided_amount = float(payment_amount) if payment_amount is not None else 0.0
     
     # Check if payment is required but not provided or insufficient

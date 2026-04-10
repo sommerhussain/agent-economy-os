@@ -49,6 +49,11 @@ class ProxyRequest(BaseModel):
         description="Optional x402 payment amount for the transaction",
         examples=[0.05]
     )
+    payment_proof: Optional[str] = Field(
+        None,
+        description="Optional payment proof (transaction ID) for automatic x402 retries",
+        examples=["tx_stripe_12345"]
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -60,7 +65,8 @@ class ProxyRequest(BaseModel):
                     "payload": {"query": "test"}
                 },
                 "credential_type": "stripe_live",
-                "payment_amount": 0.05
+                "payment_amount": 0.05,
+                "payment_proof": "tx_stripe_12345"
             }
         }
     }
@@ -145,7 +151,8 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
     settled, transaction_id = process_x402_payment(
         agent_id=request.agent_id,
         tool_call=request.tool_call,
-        payment_amount=request.payment_amount
+        payment_amount=request.payment_amount,
+        payment_proof=request.payment_proof
     )
 
     # 3. Tool Execution Engine

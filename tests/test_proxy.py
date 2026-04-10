@@ -145,6 +145,46 @@ def test_proxy_execute_payment_failed(mock_execute):
     assert data["error_code"] == "PAYMENT_FAILED"
 
 @patch("httpx.AsyncClient.request", new_callable=AsyncMock)
+def test_proxy_execute_payment_proof_success(mock_request):
+    """
+    Test the /proxy/execute endpoint when a valid payment proof is provided.
+    Expects success without triggering a new payment.
+    """
+    mock_response = AsyncMock()
+    mock_response.is_success = True
+    mock_response.status_code = 200
+    mock_request.return_value = mock_response
+
+    payload = {
+        "agent_id": "agent_123",
+        "tool_call": {"url": "http://example.com/api", "action": "read_data", "required_payment": 5.0},
+        "credential_type": "read_only_token",
+        "payment_proof": "tx_valid_proof_123"
+    }
+    response = client.post("/proxy/execute", json=payload, headers=get_auth_headers())
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["x402_settled"] is True
+    assert data["transaction_id"] == "tx_valid_proof_123"
+
+def test_proxy_execute_payment_proof_failed():
+    """
+    Test the /proxy/execute endpoint when an invalid payment proof is provided.
+    Expects a 402 Payment Failed error.
+    """
+    payload = {
+        "agent_id": "agent_123",
+        "tool_call": {"url": "http://example.com/api", "action": "read_data", "required_payment": 5.0},
+        "credential_type": "read_only_token",
+        "payment_proof": "invalid_proof"
+    }
+    response = client.post("/proxy/execute", json=payload, headers=get_auth_headers())
+    assert response.status_code == 402
+    data = response.json()
+    assert data["error_code"] == "PAYMENT_FAILED"
+
+@patch("httpx.AsyncClient.request", new_callable=AsyncMock)
 def test_proxy_execute_missing_credentials(mock_request):
     """
     Test the /proxy/execute endpoint when credentials are not found in Supabase.
