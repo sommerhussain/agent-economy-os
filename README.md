@@ -19,7 +19,7 @@ After pushing to GitHub:
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
-![Version](https://img.shields.io/badge/version-v0.1.1-orange)
+![Version](https://img.shields.io/badge/version-v0.1.2-orange)
 
 The **Universal Agent Economy OS** is a foundational, MCP/A2A-native core platform designed to power the exploding agentic sub-economy. It begins as a secure credential injection and x402 micropayment proxy, compounding daily into a full multi-monopoly empire (identity engine, payments, settlement, compliance packs, vertical marketplaces).
 
@@ -113,6 +113,24 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+```
+
+## Vertical Credential Packs
+
+The Universal Agent Economy OS supports modular "Vertical Credential Packs". These packs define standardized credential types and cryptographic scopes for specific industries (e.g., Finance, Social, Cloud).
+
+### Using the Finance Pack
+The `FinanceCredentialPack` is built-in and automatically loaded. It provides standardized definitions for:
+- `stripe_live` (Scopes: `payment:read`, `payment:write`, `refund:write`)
+- `plaid_link` (Scopes: `account:read`, `transaction:read`)
+- `bank_api` (Scopes: `balance:read`, `transfer:write`)
+
+When rotating credentials for these types, the Identity Engine will automatically validate requested scopes against the pack's allowed scopes. If no scopes are provided, it defaults to granting all allowed scopes for that credential type.
+
+**View Available Verticals:**
+```bash
+curl -X GET "http://127.0.0.1:8000/verticals" \
+     -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ---

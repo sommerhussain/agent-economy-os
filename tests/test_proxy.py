@@ -430,11 +430,11 @@ def test_supabase_real_client_paths():
         
         # rotate_credential_db success
         mock_client.table().upsert().execute.return_value = True
-        assert rotate_credential_db("agent_1", "stripe", {"key": "val"}, "2026-01-01T00:00:00Z") is True
+        assert rotate_credential_db("agent_1", "stripe", {"key": "val"}, "2026-01-01T00:00:00Z", ["read"]) is True
         
         # rotate_credential_db failure
         mock_client.table().upsert().execute.side_effect = Exception("Upsert Error")
-        assert rotate_credential_db("agent_fail", "stripe", {"key": "val"}, None) is False
+        assert rotate_credential_db("agent_fail", "stripe", {"key": "val"}, None, None) is False
         
         # fetch_credential success
         mock_response = MagicMock()
@@ -521,6 +521,61 @@ def test_create_tables_simulation():
     result = create_tables()
     assert result is True
 
+def test_get_vertical_packs():
+    """
+    Test the /verticals endpoint returns the registered vertical packs.
+    """
+    response = client.get("/verticals", headers=get_auth_headers())
+    assert response.status_code == 200
+    data = response.json()
+    assert "verticals" in data
+    assert isinstance(data["verticals"], list)
+    
+    # Check that the finance pack is present
+    finance_pack = next((pack for pack in data["verticals"] if pack["pack_id"] == "finance"), None)
+    assert finance_pack is not None
+    assert "stripe_live" in finance_pack["credentials"]
+
+@patch("app.verticals.get_all_packs")
+def test_get_vertical_packs_error(mock_get_packs):
+    """
+    Test the /verticals endpoint handles errors gracefully.
+    """
+    mock_get_packs.side_effect = Exception("Verticals Error")
+    response = client.get("/verticals", headers=get_auth_headers())
+    assert response.status_code == 500
+    assert "internal server error" in response.json()["detail"].lower()
+
+def test_credential_rotation_invalid_scopes():
+    """
+    Test credential rotation with invalid scopes for a known vertical pack.
+    """
+    payload = {
+        "agent_id": "agent_123",
+        "credential_type": "stripe_live",
+        "new_secret_data": {"api_key": "sk_live_new123"},
+        "scopes": ["invalid:scope"]
+    }
+    response = client.post("/credentials/rotate", json=payload, headers=get_auth_headers())
+    assert response.status_code == 400
+    data = response.json()
+    assert data["error_code"] == "INVALID_SCOPES"
+    assert "invalid:scope" in data["message"]
+
+def test_credential_rotation_default_scopes():
+    """
+    Test credential rotation defaults to pack scopes when none are provided.
+    """
+    payload = {
+        "agent_id": "agent_123",
+        "credential_type": "stripe_live",
+        "new_secret_data": {"api_key": "sk_live_new123"}
+    }
+    response = client.post("/credentials/rotate", json=payload, headers=get_auth_headers())
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+
 def test_agent_registration_success():
     """
     Test the /agents/register endpoint with valid payload and auth.
@@ -554,7 +609,7 @@ def test_proxy_execute_scope_success():
     Test the /proxy/execute endpoint with valid required scopes.
     """
     payload = {
-        "agent_id": "agent_123",
+        "agent_id": "agent_scope_success_123",
         "tool_call": {"url": "http://example.com/api", "action": "read_data", "required_scopes": ["read"]},
         "credential_type": "stripe_live"
     }
@@ -566,7 +621,7 @@ def test_proxy_execute_scope_denial():
     Test the /proxy/execute endpoint when requested scopes exceed granted scopes.
     """
     payload = {
-        "agent_id": "agent_123",
+        "agent_id": "agent_scope_denial_123",
         "tool_call": {"url": "http://example.com/api", "action": "delete_data", "required_scopes": ["admin"]},
         "credential_type": "stripe_live"
     }
@@ -888,7 +943,7 @@ def test_proxy_execute_a2a_routing():
     Test that the /proxy/execute endpoint correctly routes A2A calls.
     """
     payload = {
-        "agent_id": "agent_123",
+        "agent_id": "agent_a2a_routing_123",
         "tool_call": {"target_agent_id": "agent_456", "action": "ping"},
         "credential_type": "stripe_live"
     }

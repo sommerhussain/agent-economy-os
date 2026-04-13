@@ -34,7 +34,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 START_TIME = time.time()
 
 app = FastAPI(
@@ -240,6 +240,32 @@ async def dashboard_stats():
     except Exception as e:
         logger.error(f"Failed to fetch dashboard stats: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="An internal server error occurred while fetching dashboard stats.")
+
+@app.get(
+    "/verticals",
+    summary="List Vertical Credential Packs",
+    response_description="Returns all registered vertical credential packs and their definitions.",
+    responses={
+        200: {
+            "description": "Successful retrieval of vertical packs",
+        },
+        401: {"description": "Unauthorized - Missing or invalid API key"},
+        500: {"description": "Internal Server Error"}
+    }
+)
+async def get_vertical_packs():
+    """
+    Retrieves all registered vertical credential packs.
+    Vertical packs define standardized credential types (e.g., Finance, Social)
+    and their allowed scopes.
+    """
+    from app.verticals import get_all_packs
+    try:
+        packs = get_all_packs()
+        return {"verticals": [pack.model_dump() for pack in packs.values()]}
+    except Exception as e:
+        logger.error(f"Failed to fetch vertical packs: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal server error occurred while fetching vertical packs.")
 
 @app.post(
     "/agents/register",

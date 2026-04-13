@@ -94,7 +94,7 @@ def insert_agent(agent_id: str, name: str, metadata: Optional[Dict[str, Any]] = 
     logger.info(f"Simulating agent insertion for {agent_id} (Supabase not configured).")
     return True
 
-def rotate_credential_db(agent_id: str, credential_type: str, new_secret_data: Dict[str, Any], expires_at: Optional[str]) -> bool:
+def rotate_credential_db(agent_id: str, credential_type: str, new_secret_data: Dict[str, Any], expires_at: Optional[str], scopes: Optional[List[str]] = None) -> bool:
     """
     Upserts a credential for the given agent and type.
     If Supabase is not configured, simulates a successful rotation.
@@ -112,6 +112,8 @@ def rotate_credential_db(agent_id: str, credential_type: str, new_secret_data: D
             }
             if expires_at:
                 data["expires_at"] = expires_at
+            if scopes is not None:
+                data["scopes"] = scopes
                 
             # Upsert relies on the UNIQUE constraint to overwrite the old secret and expiry
             client.table("credentials").upsert(data).execute()

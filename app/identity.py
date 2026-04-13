@@ -121,6 +121,11 @@ class CredentialRotateRequest(BaseModel):
         description="Optional number of days until the new credential expires", 
         examples=[30.0]
     )
+    scopes: Optional[List[str]] = Field(
+        None,
+        description="Optional list of scopes to grant. If omitted and the credential type is known to a vertical pack, defaults to the pack's allowed scopes.",
+        examples=[["payment:read", "payment:write"]]
+    )
 
 class CredentialRotateResponse(BaseModel):
     """
@@ -153,7 +158,30 @@ async def rotate_credential(request: CredentialRotateRequest) -> CredentialRotat
     Calculates the time-based expiry and delegates the upsert to Supabase.
     Future-proofed for permission checking (Day 18).
     """
+    from app.verticals import get_credential_definition
+    from app.errors import UAEError
+    
     logger.info(f"Rotating {request.credential_type} credential for agent: {request.agent_id}")
+    
+    # 1. Validate against vertical packs if known
+    scopes_to_grant = request.scopes
+    cred_def = get_credential_definition(request.credential_type)
+    if cred_def:
+        if scopes_to_grant is None:
+            # Default to the pack's allowed scopes if none provided
+            scopes_to_grant = cred_def.allowed_scopes
+        else:
+            # Validate requested scopes against the pack's allowed scopes
+            invalid_scopes = [s for s in scopes_to_grant if s not in cred_def.allowed_scopes]
+            if invalid_scopes:
+                raise UAEError(
+                    error_code="INVALID_SCOPES",
+                    message=f"Requested scopes {invalid_scopes} are not allowed for credential type '{request.credential_type}'. Allowed: {cred_def.allowed_scopes}",
+                    status_code=400
+                )
+    else:
+        # If it's a custom credential type not in any pack, just use the requested scopes or empty list
+        scopes_to_grant = scopes_to_grant or []
     
     # Calculate expiry if provided
     expires_at_iso = None
@@ -166,7 +194,8 @@ async def rotate_credential(request: CredentialRotateRequest) -> CredentialRotat
         agent_id=request.agent_id,
         credential_type=request.credential_type,
         new_secret_data=request.new_secret_data,
-        expires_at=expires_at_iso
+        expires_at=expires_at_iso,
+        scopes=scopes_to_grant
     )
     
     # Invalidate the cache for this agent so the new credential takes effect immediately
