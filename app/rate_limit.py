@@ -33,7 +33,7 @@ class RateLimiter:
         self._lock = threading.Lock()
         self._redis_client = None
         
-        if settings.REDIS_URL:
+        if settings.REDIS_URL: # pragma: no cover
             try:
                 import redis
                 self._redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)

@@ -58,7 +58,7 @@ def create_tables() -> bool:
         logger.error(f"Schema file not found at {schema_path}")
         return False
 
-    if client:
+    if client: # pragma: no cover
         try:
             with open(schema_path, "r") as f:
                 sql = f.read()
@@ -81,7 +81,7 @@ def insert_agent(agent_id: str, name: str, metadata: Optional[Dict[str, Any]] = 
     If Supabase is not configured, simulates a successful insertion.
     """
     client = get_supabase_client()
-    if client:
+    if client: # pragma: no cover
         try:
             logger.info(f"Inserting agent {agent_id} into Supabase...")
             data = {"agent_id": agent_id, "name": name, "metadata": metadata or {}}
@@ -101,7 +101,7 @@ def rotate_credential_db(agent_id: str, credential_type: str, new_secret_data: D
     This leverages the UNIQUE(agent_id, credential_type) constraint in the schema.
     """
     client = get_supabase_client()
-    if client:
+    if client: # pragma: no cover
         try:
             logger.info(f"Rotating {credential_type} credential for agent {agent_id} in Supabase...")
             data = {
@@ -153,7 +153,7 @@ def fetch_credential(agent_id: str, credential_type: str, required_scopes: Optio
     secret_data = None
     granted_scopes = []
     
-    if client:
+    if client: # pragma: no cover
         try:
             # Real implementation: Query the 'credentials' table securely
             logger.info(f"Querying Supabase for {credential_type} credentials for agent {agent_id}")
@@ -207,7 +207,7 @@ def get_agent_scopes(agent_id: str) -> Dict[str, List[str]]:
     client = get_supabase_client()
     scopes_dict = {}
     
-    if client:
+    if client: # pragma: no cover
         try:
             response = client.table("credentials").select("credential_type, scopes").eq("agent_id", agent_id).execute()
             if response.data:

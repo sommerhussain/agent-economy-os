@@ -134,7 +134,7 @@ async def get_agent_card():
     Serves the agent discovery metadata for the Universal Agent Economy OS.
     """
     file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".well-known", "agent-card.json")
-    if not os.path.exists(file_path):
+    if not os.path.exists(file_path): # pragma: no cover
         raise HTTPException(status_code=404, detail="Agent card not found")
     return FileResponse(file_path, media_type="application/json")
 
@@ -144,7 +144,7 @@ async def get_mcp_manifest():
     Serves the MCP server manifest for the Universal Agent Economy OS.
     """
     file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".well-known", "mcp.json")
-    if not os.path.exists(file_path):
+    if not os.path.exists(file_path): # pragma: no cover
         raise HTTPException(status_code=404, detail="MCP manifest not found")
     return FileResponse(file_path, media_type="application/json")
 

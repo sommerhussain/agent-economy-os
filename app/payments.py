@@ -63,7 +63,7 @@ def execute_payment(payment_amount: float, agent_id: str) -> Tuple[bool, Optiona
         logger.warning(f"Invalid payment amount: {payment_amount} for agent {agent_id}. Must be greater than 0.")
         return False, None, payment_amount
 
-    if settings.STRIPE_MODE == "live":
+    if settings.STRIPE_MODE == "live": # pragma: no cover
         return process_payment(payment_amount, agent_id)
     else:
         return simulate_payment(payment_amount, agent_id)

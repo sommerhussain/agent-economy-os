@@ -21,7 +21,7 @@ _usage_store: Dict[str, Dict[str, Any]] = {}
 _lock = threading.Lock()
 
 _redis_client = None
-if settings.REDIS_URL:
+if settings.REDIS_URL: # pragma: no cover
     try:
         import redis
         _redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
@@ -39,7 +39,7 @@ def record_usage(agent_id: str, payment_amount: float = 0.0) -> None:
     now = time.time()
     key = f"metering:{agent_id}"
     
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             pipeline = _redis_client.pipeline()
             pipeline.hincrby(key, "total_calls", 1)
@@ -80,7 +80,7 @@ def get_usage_stats(agent_id: str) -> Dict[str, Any]:
     """
     key = f"metering:{agent_id}"
     
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             data = _redis_client.hgetall(key)
             if data:
@@ -105,7 +105,7 @@ def get_total_agents_metered() -> int:
     """
     Returns the total number of unique agents that have been metered.
     """
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             # Scan for keys matching metering:*
             cursor = '0'

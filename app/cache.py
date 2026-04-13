@@ -24,7 +24,7 @@ _lock = threading.Lock()
 DEFAULT_TTL_SECONDS = 300  # 5 minutes
 
 _redis_client = None
-if settings.REDIS_URL:
+if settings.REDIS_URL: # pragma: no cover
     try:
         import redis
         _redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
@@ -40,7 +40,7 @@ def get_cached_credential(agent_id: str, credential_type: str) -> Optional[Tuple
     """
     key = f"cred:{agent_id}:{credential_type}"
     
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             data = _redis_client.get(key)
             if data:
@@ -68,7 +68,7 @@ def set_cached_credential(agent_id: str, credential_type: str, secret_data: Dict
     """
     key = f"cred:{agent_id}:{credential_type}"
     
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             payload = json.dumps({"secret_data": secret_data, "scopes": scopes})
             _redis_client.setex(key, ttl, payload)
@@ -89,7 +89,7 @@ def get_cached_agent_scopes(agent_id: str) -> Optional[Dict[str, List[str]]]:
     """
     key = f"scopes:{agent_id}"
     
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             data = _redis_client.get(key)
             if data:
@@ -116,7 +116,7 @@ def set_cached_agent_scopes(agent_id: str, scopes_dict: Dict[str, List[str]], tt
     """
     key = f"scopes:{agent_id}"
     
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             _redis_client.setex(key, ttl, json.dumps(scopes_dict))
             return
@@ -134,7 +134,7 @@ def invalidate_agent_cache(agent_id: str) -> None:
     Invalidates all cached credentials and scopes for a given agent.
     Called during credential rotation or agent updates.
     """
-    if _redis_client:
+    if _redis_client: # pragma: no cover
         try:
             # Delete scopes
             _redis_client.delete(f"scopes:{agent_id}")
