@@ -19,7 +19,7 @@ After pushing to GitHub:
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
-![Version](https://img.shields.io/badge/version-v0.1.3-orange)
+![Version](https://img.shields.io/badge/version-v0.1.4-orange)
 
 The **Universal Agent Economy OS** is a foundational, MCP/A2A-native core platform designed to power the exploding agentic sub-economy. It begins as a secure credential injection and x402 micropayment proxy, compounding daily into a full multi-monopoly empire (identity engine, payments, settlement, compliance packs, vertical marketplaces).
 
@@ -95,6 +95,10 @@ async def main():
             # 6. Generate a usage-based invoice for the agent
             invoice = await client.get_invoice(agent_id="agent_sdk_1")
             print("Generated Invoice:", invoice)
+            
+            # 7. List available Vertical Credential Packs
+            verticals = await client.get_vertical_packs()
+            print("Available Verticals:", verticals)
             
         except RateLimitError as e:
             # Raised if the agent exceeds the rate limit and max_retries are exhausted
@@ -198,6 +202,17 @@ await client.execute(
 curl -X GET "http://127.0.0.1:8000/verticals" \
      -H "Authorization: Bearer YOUR_API_KEY"
 ```
+
+---
+
+## Agent Discovery & MCP Manifest
+
+The UAE OS is fully discoverable by other agents and MCP clients. It serves standard discovery metadata at the following public endpoints:
+
+- **Agent Card (`/.well-known/agent-card.json`)**: Provides A2A discovery metadata, including the agent's name, description, capabilities (like x402 micropayments), and available endpoints.
+- **MCP Manifest (`/.well-known/mcp.json`)**: Provides the official Model Context Protocol server manifest, allowing MCP clients to dynamically connect to the proxy's execute endpoint.
+
+These endpoints are public and do not require an API key.
 
 ---
 

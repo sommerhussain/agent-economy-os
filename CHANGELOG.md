@@ -5,6 +5,14 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-04-15
+
+### Added
+- **Final Polish & Release Prep**: Comprehensive audit, documentation updates, and release preparation for v0.1.4.
+- **Discovery Metadata**: Added standard MCP/A2A discovery files (`.well-known/agent-card.json`, `.well-known/mcp.json`).
+- **x402 Retries**: Full support for `payment_proof` in the native x402 middleware for automatic retries without double-charging.
+- **Vertical Credential Packs**: Integrated Finance pack (`stripe_live`, `plaid_link`, `bank_api`) with automatic scope validation.
+
 ## [0.1.3] - 2026-04-14
 
 ### Added
