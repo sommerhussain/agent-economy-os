@@ -5,6 +5,15 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2026-04-16
+
+### Added
+- **Final Weekly Polish**: Revenue monitoring setup, optimized discovery metadata, and preparation for the next phase.
+- **On-Chain Identity Stub**: Added basic ERC-8004 on-chain identity stub (`app/identity/onchain.py`) to future-proof for hybrid fiat/on-chain credentials.
+- **Compute & Data Vertical Packs**: Introduced `ComputeCredentialPack` and `DataCredentialPack` for AI model inference, cloud compute, and data access.
+- **Paid Discovery**: Extended x402 middleware with a special `discover` action, allowing agents to pay a tiny fee to discover premium tools.
+- **Usage Limits & Pricing Dashboard**: Enhanced the `/stats` dashboard to clearly display pricing tier information, usage, and remaining quota per agent.
+
 ## [0.1.4] - 2026-04-15
 
 ### Added

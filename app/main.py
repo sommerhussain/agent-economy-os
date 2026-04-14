@@ -34,7 +34,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-VERSION = "0.1.4"
+VERSION = "0.1.5"
 START_TIME = time.time()
 
 app = FastAPI(
@@ -126,7 +126,7 @@ async def root():
         "message": "Universal Agent Economy OS Proxy v0 is running",
         "endpoints": ["/proxy/execute", "/health", "/metrics", "/stats", "/verticals"],
         "discovery": "Agent Card at /.well-known/agent-card.json, MCP Manifest at /.well-known/mcp.json",
-        "note": "Revenue engine ready. Use /verticals to explore available credential packs."
+        "note": "Revenue engine active - x402 + usage limits enabled. Use /verticals to explore available credential packs."
     }
 
 @app.get("/.well-known/agent-card.json", include_in_schema=False)
@@ -157,7 +157,8 @@ async def health_check():
     return {
         "status": "healthy",
         "version": VERSION,
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "revenue_ready": True
     }
 
 @app.get("/metrics")
@@ -315,6 +316,18 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "name": "AWS Compute Access",
                                         "description": "AWS EC2 and Lambda compute access.",
                                         "allowed_scopes": ["ec2:manage", "lambda:invoke"]
+                                    }
+                                }
+                            },
+                            {
+                                "pack_id": "onchain",
+                                "name": "On-Chain Identity (ERC-8004)",
+                                "description": "Core credentials for on-chain identity, wallets, and smart contract interactions.",
+                                "credentials": {
+                                    "erc8004_identity": {
+                                        "name": "ERC-8004 Identity",
+                                        "description": "On-chain identity profile and attestations.",
+                                        "allowed_scopes": ["wallet:read", "nft:verify", "ens:resolve"]
                                     }
                                 }
                             }
