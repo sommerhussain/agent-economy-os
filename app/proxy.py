@@ -100,6 +100,11 @@ class ProxyResponse(BaseModel):
         description="Unique audit trail ID for the transaction",
         examples=["adt_9876543210abcdef"]
     )
+    discovery_data: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Optional discovery data returned when action='discover' is used",
+        examples=[{"premium_tools": ["finance_analyzer", "market_predictor"]}]
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -164,7 +169,37 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
     if not injected:
         logger.warning("Tool execution proceeding without injected credentials. This may fail downstream.")
         
-    success = await route_tool_call(request.agent_id, request.tool_call)
+    discovery_data = None
+    if request.tool_call.get("action") == "discover":
+        # Handle paid discovery logic directly
+        success = True
+        discovery_data = {
+            "message": "Welcome to the Universal Agent Economy OS Premium Discovery!",
+            "premium_tools": [
+                {
+                    "name": "Market Predictor",
+                    "action": "market_predict",
+                    "description": "Advanced AI model for forecasting market trends.",
+                    "required_payment": 5.00
+                },
+                {
+                    "name": "Deep Web Scraper",
+                    "action": "deep_scrape",
+                    "description": "Bypass captchas and scrape complex SPAs.",
+                    "required_payment": 2.50
+                },
+                {
+                    "name": "Automated Trader",
+                    "action": "auto_trade",
+                    "description": "Execute high-frequency trades across multiple exchanges.",
+                    "required_payment": 10.00
+                }
+            ],
+            "tip": "Use the returned action names in your next tool_call to access these premium capabilities."
+        }
+        logger.info(f"Served paid discovery data to agent {request.agent_id}.")
+    else:
+        success = await route_tool_call(request.agent_id, request.tool_call)
 
     # 4. Compliance & Audit Logging
     audit_id = generate_audit_id()
@@ -185,5 +220,6 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
         injected_credential=injected,
         x402_settled=settled,
         transaction_id=transaction_id,
-        audit_id=audit_id
+        audit_id=audit_id,
+        discovery_data=discovery_data
     )

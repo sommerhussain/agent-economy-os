@@ -28,6 +28,40 @@ client = TestClient(app)
 def get_auth_headers():
     return {"Authorization": "Bearer test_api_key"}
 
+def test_proxy_execute_discovery_mode():
+    """Test the paid discovery mode."""
+    payload = {
+        "agent_id": "test_agent_discovery",
+        "tool_call": {
+            "action": "discover"
+        },
+        "credential_type": "stripe_live",
+        "payment_amount": 0.05
+    }
+    response = client.post("/proxy/execute", json=payload, headers=get_auth_headers())
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["x402_settled"] is True
+    assert "discovery_data" in data
+    assert "premium_tools" in data["discovery_data"]
+
+def test_proxy_execute_discovery_mode_insufficient_payment():
+    """Test the paid discovery mode with insufficient payment."""
+    payload = {
+        "agent_id": "test_agent_discovery_fail",
+        "tool_call": {
+            "action": "discover"
+        },
+        "credential_type": "stripe_live",
+        "payment_amount": 0.005 # Less than 0.01
+    }
+    response = client.post("/proxy/execute", json=payload, headers=get_auth_headers())
+    assert response.status_code == 402
+    data = response.json()
+    assert data["error_code"] == "PAYMENT_REQUIRED"
+    assert "0.01" in str(data["details"])
+
 @patch("httpx.AsyncClient.request", new_callable=AsyncMock)
 def test_proxy_execute_success_with_payment(mock_request):
     """

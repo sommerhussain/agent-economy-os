@@ -18,6 +18,7 @@ def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amoun
     Native x402 middleware logic.
     
     1. Checks if the tool call requires a payment (e.g., via a 'required_payment' field).
+       - If action is 'discover', automatically enforces a minimum discovery fee (e.g., 0.01).
     2. If a payment_proof is provided, verifies it. If valid, bypasses new payment.
     3. Verifies that the provided payment_amount is sufficient.
     4. If insufficient or missing, raises a 402 PaymentRequiredError.
@@ -27,6 +28,11 @@ def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amoun
         Tuple[bool, Optional[str]]: (settled_status, transaction_id)
     """
     required_payment = float(tool_call.get("required_payment", 0.0))
+    
+    # Discovery mode: enforce a tiny fee for discovering premium tools
+    if tool_call.get("action") == "discover" and required_payment < 0.01:
+        required_payment = 0.01
+        logger.info(f"Discovery mode activated for agent {agent_id}. Enforcing minimum fee of {required_payment}.")
     
     # If a payment proof is provided, verify it first (automatic retry logic)
     if payment_proof:
