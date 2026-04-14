@@ -9,12 +9,14 @@ import logging
 from typing import Dict, Optional
 from app.verticals.base import CredentialPack, CredentialDefinition
 from app.verticals.finance import FinanceCredentialPack
+from app.verticals.data import DataCredentialPack
 
 logger = logging.getLogger(__name__)
 
 # Registry of all loaded vertical packs
 VERTICAL_PACKS: Dict[str, CredentialPack] = {
-    FinanceCredentialPack.pack_id: FinanceCredentialPack
+    FinanceCredentialPack.pack_id: FinanceCredentialPack,
+    DataCredentialPack.pack_id: DataCredentialPack
 }
 
 def get_all_packs() -> Dict[str, CredentialPack]:

@@ -281,6 +281,18 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "allowed_scopes": ["payment:read", "payment:write", "refund:write"]
                                     }
                                 }
+                            },
+                            {
+                                "pack_id": "data",
+                                "name": "Data & Compute",
+                                "description": "Core credentials for data access, AI compute, and cloud infrastructure.",
+                                "credentials": {
+                                    "openai_api": {
+                                        "name": "OpenAI API Key",
+                                        "description": "Access to OpenAI language models.",
+                                        "allowed_scopes": ["model:read", "model:execute", "fine_tune:write"]
+                                    }
+                                }
                             }
                         ]
                     }
