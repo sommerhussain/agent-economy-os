@@ -173,6 +173,8 @@ The Universal Agent Economy OS supports modular "Vertical Credential Packs". The
 - **Finance**: Core financial credentials (`stripe_live`, `plaid_link`, `bank_api`).
 - **Data**: Data access and scraping (`google_api`, `openai_api`, `aws_access`, `web_scraper`).
 - **Compute**: AI model inference and cloud compute (`openai_api`, `anthropic_api`, `aws_compute`, `gpu_cluster`).
+- **Compliance**: Enterprise-grade audit logging and KYC (`audit_log_access`, `kyc_verification`, `regulatory_reporting`).
+- **Legal**: Legal contracts, IP registries, and e-signatures (`legal_contract_access`, `intellectual_property_registry`, `e_signature`).
 
 When rotating credentials for these types, the Identity Engine automatically validates requested scopes against the pack's allowed scopes. If no scopes are provided, it defaults to granting all allowed scopes for that credential type, ensuring secure-by-default operation.
 
@@ -214,6 +216,33 @@ The UAE OS is fully discoverable by other agents and MCP clients, accelerating n
 - **Paid Discovery (`action="discover"`)**: Agents can pay a tiny fee to the proxy to instantly discover premium tools and capabilities available on the network.
 
 These `.well-known` endpoints are public and do not require an API key, enabling frictionless onboarding.
+
+### Example: Paid Discovery Loop for Legal/Compliance Tools
+```python
+# 1. Pay a tiny fee to discover premium tools
+discovery_result = await client.discover_premium_tools(
+    agent_id="agent_1",
+    payment_amount=0.01
+)
+
+# 2. Inspect the returned premium tools
+premium_tools = discovery_result.get("discovery_data", {}).get("premium_tools", [])
+for tool in premium_tools:
+    print(f"Discovered: {tool['name']} ({tool['action']}) - ${tool['required_payment']}")
+    
+# Example output might include:
+# Discovered: Automated Audit Log Access (audit_log_fetch) - $15.00
+# Discovered: KYC Verification Service (kyc_verify) - $20.00
+# Discovered: Regulatory Reporting Tool (regulatory_report) - $50.00
+
+# 3. Autonomously decide to use a discovered premium legal/compliance tool
+await client.execute(
+    agent_id="agent_1",
+    tool_call={"action": "kyc_verify", "required_payment": 20.00},
+    credential_type="kyc_verification",
+    payment_amount=20.00
+)
+```
 
 ---
 

@@ -277,6 +277,21 @@ class UAEOSClient:
     async def get_vertical_packs(self) -> Dict[str, Any]:
         """
         Retrieves all registered vertical credential packs and their definitions.
+        
+        Vertical packs define standardized credential types and cryptographic scopes
+        for specific industries (e.g., Finance, Data, Compute, Compliance, Legal).
+        
+        Returns:
+            Dict containing a list of all available vertical packs.
+            
+        Example:
+            ```python
+            verticals = await client.get_vertical_packs()
+            for pack in verticals["verticals"]:
+                print(f"Pack: {pack['name']}")
+                for cred_id, cred_def in pack["credentials"].items():
+                    print(f"  - {cred_id}: {cred_def['allowed_scopes']}")
+            ```
         """
         return await self._request("GET", "/verticals")
 
@@ -284,12 +299,23 @@ class UAEOSClient:
         """
         Executes a paid discovery call to find premium tools and capabilities available on the network.
         
+        This leverages the self-reinforcing x402 discovery loop, allowing agents to 
+        pay a tiny fee to uncover high-value tools (e.g., KYC verification, legal contract access).
+        
         Args:
             agent_id: The calling agent's ID
             payment_amount: The x402 micropayment amount to settle for discovery (default 0.01)
             
         Returns:
             Dict containing the discovery data with premium tools.
+            
+        Example:
+            ```python
+            result = await client.discover_premium_tools(agent_id="agent_1", payment_amount=0.01)
+            premium_tools = result.get("discovery_data", {}).get("premium_tools", [])
+            for tool in premium_tools:
+                print(f"Discovered: {tool['name']} ({tool['action']}) - ${tool['required_payment']}")
+            ```
         """
         tool_call = {
             "action": "discover",
