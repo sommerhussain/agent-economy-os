@@ -186,7 +186,7 @@ class DashboardStatsResponse(BaseModel):
     recent_activity: List[Dict[str, Any]] = Field(..., description="List of recent analytics events", examples=[[{"event_id": "evt_123", "agent_id": "agent_1", "event_type": "proxy_execute", "amount": 0.05, "timestamp": 1700000000.0}]])
     recent_invoices: List[Invoice] = Field(..., description="List of recently generated invoices")
     pricing_tiers: Dict[str, int] = Field(..., description="Current pricing tier limits", examples=[{"free": 100, "pro": 10000}])
-    agent_tier_status: Optional[Dict[str, Any]] = Field(None, description="Tier status for a specific agent if requested", examples=[{"tier": "free", "total_calls": 45, "limit": 100, "remaining": 55, "exceeded": False}])
+    agent_tier_status: Optional[Dict[str, Any]] = Field(None, description="Tier status for a specific agent if requested", examples=[{"tier": "free", "total_calls": 45, "limit": 100, "remaining": 55, "exceeded": False, "projected_cost": 0.45}])
 
 @app.get(
     "/stats",
@@ -222,7 +222,8 @@ class DashboardStatsResponse(BaseModel):
                             "total_calls": 45,
                             "limit": 100,
                             "remaining": 55,
-                            "exceeded": False
+                            "exceeded": False,
+                            "projected_cost": 0.45
                         }
                     }
                 }

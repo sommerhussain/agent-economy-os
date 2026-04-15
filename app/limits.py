@@ -38,16 +38,18 @@ def check_usage_limits(agent_id: str) -> None:
 
 def get_tier_status(agent_id: str) -> Dict[str, Any]:
     """
-    Returns the current usage vs limits for the given agent.
+    Returns the current usage vs limits for the given agent, including projected costs.
     """
     stats = get_usage_stats(agent_id)
     total_calls = stats.get("total_calls", 0)
     limit = settings.FREE_TIER_LIMIT
+    projected_cost = total_calls * settings.BILLING_RATE_PER_CALL
     
     return {
         "tier": "free",
         "total_calls": total_calls,
         "limit": limit,
         "remaining": max(0, limit - total_calls),
-        "exceeded": total_calls >= limit
+        "exceeded": total_calls >= limit,
+        "projected_cost": round(projected_cost, 4)
     }
