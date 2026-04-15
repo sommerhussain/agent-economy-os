@@ -163,7 +163,7 @@ async def rotate_credential(request: CredentialRotateRequest) -> CredentialRotat
     
     logger.info(f"Rotating {request.credential_type} credential for agent: {request.agent_id}")
     
-    # 1. Validate against vertical packs if known (including on-chain ERC-8004)
+    # 1. Validate against vertical packs if known (including on-chain ERC-8004 and compliance)
     scopes_to_grant = request.scopes
     cred_def = get_credential_definition(request.credential_type)
     if cred_def:

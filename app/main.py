@@ -330,6 +330,18 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "allowed_scopes": ["wallet:read", "nft:verify", "ens:resolve"]
                                     }
                                 }
+                            },
+                            {
+                                "pack_id": "compliance",
+                                "name": "Compliance & Governance",
+                                "description": "Enterprise-grade credentials for audit logging, KYC, regulatory reporting, and smart contract audits.",
+                                "credentials": {
+                                    "audit_log_access": {
+                                        "name": "Audit Log Access",
+                                        "description": "Read-only access to immutable transaction and proxy execution audit logs.",
+                                        "allowed_scopes": ["audit:read", "audit:export"]
+                                    }
+                                }
                             }
                         ]
                     }
