@@ -201,7 +201,7 @@ class UAEOSClient:
             
         return await self._request("POST", "/credentials/rotate", json=payload)
 
-    async def execute(self, agent_id: str, tool_call: Dict[str, Any], credential_type: str, payment_amount: Optional[float] = None) -> Dict[str, Any]:
+    async def execute(self, agent_id: str, tool_call: Dict[str, Any], credential_type: str, payment_amount: Optional[float] = None, payment_proof: Optional[str] = None) -> Dict[str, Any]:
         """
         Executes a tool call through the secure proxy, handling credential injection and x402 settlement.
         
@@ -210,6 +210,7 @@ class UAEOSClient:
             tool_call: The payload defining the tool execution (url, method, etc.)
             credential_type: The required credential type to inject
             payment_amount: Optional x402 micropayment amount to settle
+            payment_proof: Optional transaction ID from a previous settlement to retry without double charging
             
         Returns:
             Dict containing execution success, settlement status, and audit ID.
@@ -221,6 +222,8 @@ class UAEOSClient:
         }
         if payment_amount is not None:
             payload["payment_amount"] = payment_amount
+        if payment_proof is not None:
+            payload["payment_proof"] = payment_proof
             
         return await self._request("POST", "/proxy/execute", json=payload)
 
@@ -276,3 +279,25 @@ class UAEOSClient:
         Retrieves all registered vertical credential packs and their definitions.
         """
         return await self._request("GET", "/verticals")
+
+    async def discover_premium_tools(self, agent_id: str, payment_amount: float = 0.01) -> Dict[str, Any]:
+        """
+        Executes a paid discovery call to find premium tools and capabilities available on the network.
+        
+        Args:
+            agent_id: The calling agent's ID
+            payment_amount: The x402 micropayment amount to settle for discovery (default 0.01)
+            
+        Returns:
+            Dict containing the discovery data with premium tools.
+        """
+        tool_call = {
+            "action": "discover",
+            "required_payment": payment_amount
+        }
+        return await self.execute(
+            agent_id=agent_id,
+            tool_call=tool_call,
+            credential_type="stripe_live", # Default to live payment credential
+            payment_amount=payment_amount
+        )

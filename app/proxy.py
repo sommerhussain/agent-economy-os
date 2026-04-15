@@ -193,6 +193,24 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
                     "action": "auto_trade",
                     "description": "Execute high-frequency trades across multiple exchanges.",
                     "required_payment": 10.00
+                },
+                {
+                    "name": "Automated Audit Log Access",
+                    "action": "audit_log_fetch",
+                    "description": "Retrieve immutable transaction and proxy execution audit logs for compliance.",
+                    "required_payment": 15.00
+                },
+                {
+                    "name": "KYC Verification Service",
+                    "action": "kyc_verify",
+                    "description": "Perform third-party Know Your Customer (KYC) and AML verification.",
+                    "required_payment": 20.00
+                },
+                {
+                    "name": "Regulatory Reporting Tool",
+                    "action": "regulatory_report",
+                    "description": "Generate and submit automated tax and regulatory reports.",
+                    "required_payment": 50.00
                 }
             ],
             "tip": "Use the returned action names in your next tool_call to access these premium capabilities."
