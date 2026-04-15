@@ -22,6 +22,16 @@ class OnChainIdentityStub:
                     name="WalletConnect Session",
                     description="Active WalletConnect session for signing transactions.",
                     allowed_scopes=["wallet:read", "tx:sign"]
+                ),
+                "siwe_session": CredentialDefinition(
+                    name="Sign-In with Ethereum (SIWE)",
+                    description="Authenticated session via EIP-4361 for off-chain services.",
+                    allowed_scopes=["auth:siwe", "session:read"]
+                ),
+                "verifiable_credential": CredentialDefinition(
+                    name="W3C Verifiable Credential",
+                    description="On-chain verifiable credential for hybrid identity proofs.",
+                    allowed_scopes=["vc:read", "vc:verify", "vc:issue"]
                 )
             }
         )
