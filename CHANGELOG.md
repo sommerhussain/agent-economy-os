@@ -5,6 +5,16 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] - 2026-04-17
+
+### Added
+- **Compliance & Governance Pack Enhancements**: Added auditor-ready export features and `audit_report_generator` credential.
+- **Strengthened Paid Discovery**: Expanded `action="discover"` loop with premium Compliance and Legal tool examples.
+- **Pricing Dashboard Improvements**: Added `projected_cost` and `tier_recommendation` to agent tier status.
+- **Expanded On-Chain Identity**: Added `smart_contract_execution`, `dao_governance_token`, and `cross_chain_bridge` to the ERC-8004 On-Chain pack.
+- **Daily Revenue Summary**: Added `daily_revenue_summary` tracking to the Analytics Engine, exposed via `/stats` and `/health`.
+- **SDK & Documentation Polish**: Updated Python SDK and `README.md` with comprehensive examples for all 6 vertical packs and the enhanced pricing dashboard.
+
 ## [0.1.6] - 2026-04-07
 
 ### Added
