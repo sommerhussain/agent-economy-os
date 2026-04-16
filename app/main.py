@@ -154,12 +154,14 @@ async def health_check():
     """
     Basic health check endpoint for load balancers and orchestrators.
     """
+    from app.analytics import get_daily_revenue_summary
     return {
         "status": "healthy",
         "version": VERSION,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "revenue_ready": True,
-        "revenue_note": "Revenue engine active with usage limits and paid discovery"
+        "revenue_note": "Revenue engine active with usage limits and paid discovery",
+        "daily_revenue_summary": get_daily_revenue_summary()
     }
 
 @app.get("/metrics")
@@ -183,6 +185,7 @@ class DashboardStatsResponse(BaseModel):
     total_agents_registered: int = Field(..., description="Total number of agents metered", examples=[42])
     total_calls: int = Field(..., description="Total API calls across all agents", examples=[15000])
     total_revenue: float = Field(..., description="Total settled payment volume across all agents", examples=[1250.50])
+    daily_revenue_summary: float = Field(..., description="Total revenue generated in the last 24 hours", examples=[150.25])
     active_agents: int = Field(..., description="Number of agents with recent activity (within 24h)", examples=[12])
     recent_activity: List[Dict[str, Any]] = Field(..., description="List of recent analytics events", examples=[[{"event_id": "evt_123", "agent_id": "agent_1", "event_type": "proxy_execute", "amount": 0.05, "timestamp": 1700000000.0}]])
     recent_invoices: List[Invoice] = Field(..., description="List of recently generated invoices")
@@ -203,6 +206,7 @@ class DashboardStatsResponse(BaseModel):
                         "total_agents_registered": 150,
                         "total_calls": 45000,
                         "total_revenue": 3250.75,
+                        "daily_revenue_summary": 150.25,
                         "active_agents": 45,
                         "recent_activity": [
                             {
@@ -241,11 +245,12 @@ async def dashboard_stats(agent_id: Optional[str] = None):
     
     This endpoint aggregates data from the analytics tracker and billing engines,
     providing a real-time overview of the Universal Agent Economy OS health.
-    It returns total agents, API calls, settlement revenue, recent activity, and pricing tiers.
+    It returns total agents, API calls, settlement revenue, daily revenue, recent activity, and pricing tiers.
     If an `agent_id` is provided, it also returns the tier status for that specific agent.
     """
     try:
         from app.limits import get_tier_status
+        from app.analytics import get_daily_revenue_summary
         analytics_stats = get_analytics_stats()
         recent_invoices = get_recent_invoices()
         
@@ -257,6 +262,7 @@ async def dashboard_stats(agent_id: Optional[str] = None):
             total_agents_registered=analytics_stats["total_agents_registered"],
             total_calls=analytics_stats["total_calls"],
             total_revenue=analytics_stats["total_revenue"],
+            daily_revenue_summary=get_daily_revenue_summary(),
             active_agents=analytics_stats["active_agents"],
             recent_activity=analytics_stats["recent_activity"],
             recent_invoices=recent_invoices,

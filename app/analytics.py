@@ -98,6 +98,18 @@ class AnalyticsTracker:
                 "recent_activity": recent_activity
             }
 
+    def get_daily_revenue_summary(self) -> float:
+        """
+        Calculates the total revenue from the last 24 hours based on recent activity.
+        """
+        now = time.time()
+        daily_revenue = 0.0
+        with self._lock:
+            for event in self._store["analytics:recent_activity"]:
+                if now - event["timestamp"] <= 86400: # 24 hours in seconds
+                    daily_revenue += event.get("amount", 0.0)
+        return daily_revenue
+
 # Global singleton instance
 _tracker = AnalyticsTracker()
 
@@ -120,3 +132,9 @@ def get_analytics_stats() -> Dict[str, Any]:
     Helper to retrieve aggregated analytics stats.
     """
     return _tracker.get_global_stats()
+
+def get_daily_revenue_summary() -> float:
+    """
+    Helper to retrieve the daily revenue summary (last 24 hours).
+    """
+    return _tracker.get_daily_revenue_summary()
