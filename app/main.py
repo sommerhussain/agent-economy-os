@@ -359,6 +359,11 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "name": "Audit Report Generator",
                                         "description": "Capability to generate auditor-ready export reports of proxy execution logs.",
                                         "allowed_scopes": ["audit:export", "report:generate"]
+                                    },
+                                    "soc2_compliance_auditor": {
+                                        "name": "SOC2 Compliance Auditor",
+                                        "description": "Enterprise credentials for automated SOC2 compliance monitoring and evidence collection.",
+                                        "allowed_scopes": ["audit:read", "compliance:verify", "evidence:collect"]
                                     }
                                 }
                             },

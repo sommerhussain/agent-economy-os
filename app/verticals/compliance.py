@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 import time
 from datetime import datetime, timezone
 
-def export_audit_report(agent_id: str) -> Dict[str, Any]:
+def export_audit_report(agent_id: str, time_range_seconds: int = 86400) -> Dict[str, Any]:
     """
     Generates an auditor-ready export of the agent's recent proxy execution logs.
     Reuses the existing analytics/metering layer to gather the data.
@@ -12,17 +12,26 @@ def export_audit_report(agent_id: str) -> Dict[str, Any]:
     
     stats = get_analytics_stats()
     recent_activity = stats.get("recent_activity", [])
+    now = time.time()
     
-    # Filter for the specific agent
-    agent_activity = [event for event in recent_activity if event.get("agent_id") == agent_id]
+    # Filter for the specific agent and time range
+    agent_activity = [
+        event for event in recent_activity 
+        if event.get("agent_id") == agent_id and (now - event.get("timestamp", 0)) <= time_range_seconds
+    ]
+    
+    total_volume = sum(event.get("amount", 0.0) for event in agent_activity)
     
     return {
-        "report_id": f"rep_{int(time.time())}",
+        "report_id": f"rep_{int(now)}",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "agent_id": agent_id,
+        "time_range_seconds": time_range_seconds,
         "total_events_exported": len(agent_activity),
+        "total_payment_volume": round(total_volume, 4),
         "events": agent_activity,
-        "certification": "Auditor-Ready Export - Universal Agent Economy OS"
+        "certification": "Auditor-Ready Export - Universal Agent Economy OS",
+        "compliance_standard": "SOC2/ISO27001 Ready"
     }
 
 ComplianceCredentialPack = CredentialPack(
@@ -39,6 +48,11 @@ ComplianceCredentialPack = CredentialPack(
             name="Audit Report Generator",
             description="Capability to generate auditor-ready export reports of proxy execution logs.",
             allowed_scopes=["audit:export", "report:generate"]
+        ),
+        "soc2_compliance_auditor": CredentialDefinition(
+            name="SOC2 Compliance Auditor",
+            description="Enterprise credentials for automated SOC2 compliance monitoring and evidence collection.",
+            allowed_scopes=["audit:read", "compliance:verify", "evidence:collect"]
         ),
         "kyc_verification": CredentialDefinition(
             name="KYC Verification Provider",
