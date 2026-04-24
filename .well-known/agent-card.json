@@ -1,7 +1,7 @@
 {
   "name": "Universal Agent Economy OS",
   "description": "A foundational MCP/A2A-native core platform for secure credential injection, x402 micropayments, and autonomous agent routing.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "author": "Universal Agent Economy",
   "license": "MIT",
   "tags": [

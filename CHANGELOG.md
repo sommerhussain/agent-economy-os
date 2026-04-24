@@ -5,6 +5,15 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8] - 2026-04-25
+
+### Added
+- **x402 Middleware Enhancements**: Added response-embedded `recommendation_metadata` to actively propagate premium tools and vertical packs.
+- **Compliance Pack Upgrades**: Enhanced `export_audit_report` with time ranges and volume tracking, and added `soc2_compliance_auditor` credential.
+- **Discovery Optimization**: Enriched `.well-known/agent-card.json` and `.well-known/mcp.json` with semantic keywords, tags, and capabilities.
+- **Pricing Dashboard & Projections**: Upgraded `/stats` and `app/analytics.py` to include 7-day, 30-day, and annual projected revenue, plus structured `AgentTierStatus`.
+- **Weekly Polish**: Version bump to 0.1.8 and endpoint refinements.
+
 ## [0.1.7] - 2026-04-17
 
 ### Added

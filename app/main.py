@@ -34,7 +34,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-VERSION = "0.1.7"
+VERSION = "0.1.8"
 START_TIME = time.time()
 
 app = FastAPI(
@@ -126,7 +126,7 @@ async def root():
         "message": f"Universal Agent Economy OS Proxy v{VERSION} is running",
         "endpoints": ["/proxy/execute", "/health", "/metrics", "/stats", "/verticals"],
         "discovery": "Agent Card at /.well-known/agent-card.json, MCP Manifest at /.well-known/mcp.json",
-        "note": "Revenue engine active - x402 + usage limits + paid discovery + daily revenue tracking enabled. Use /verticals to explore available credential packs."
+        "note": "Revenue engine active - x402 + usage limits + paid discovery + daily/projected revenue tracking enabled. Use /verticals to explore available credential packs."
     }
 
 @app.get("/.well-known/agent-card.json", include_in_schema=False)
@@ -160,7 +160,7 @@ async def health_check():
         "version": VERSION,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "revenue_ready": True,
-        "revenue_note": "Revenue engine active with usage limits, paid discovery, and daily revenue tracking",
+        "revenue_note": "Revenue engine active with usage limits, paid discovery, and daily/projected revenue tracking",
         "daily_revenue_summary": get_daily_revenue_summary()
     }
 
