@@ -451,6 +451,60 @@ To enable real-time settlement tracking for live Stripe payments, configure a we
 
 ---
 
+## One-Command Deploy (Enterprise Infrastructure)
+
+The Universal Agent Economy OS is designed for immediate enterprise handover. While PaaS platforms like Railway are great for quick starts, we provide a complete **Terraform Foundation** (`deploy/terraform/`) for deploying the full stack to AWS (ECS/Fargate), Azure, or GCP.
+
+This infrastructure-as-code setup mirrors the simplicity of our `railway.toml` but scales to enterprise requirements, including isolated VPCs, Application Load Balancers, and secure secret injection.
+
+### Architecture Overview
+
+```mermaid
+graph TD
+    Client[Agent / MCP Client] -->|HTTPS| ALB[Application Load Balancer]
+    ALB -->|Port 8000| ECS[ECS Fargate Cluster]
+    
+    subgraph "Universal Agent Economy OS"
+        ECS -->|Reads/Writes| Redis[(Redis Cluster)]
+        ECS -->|Validates Scopes| Supabase[(Supabase / PostgreSQL)]
+        ECS -->|Settles Payments| Stripe[Stripe API]
+    end
+    
+    ECS -->|Proxies Request| Downstream[Downstream API / Agent]
+```
+
+### Deploying with Terraform
+
+1. **Navigate to the Terraform directory:**
+   ```bash
+   cd deploy/terraform
+   ```
+
+2. **Initialize Terraform:**
+   ```bash
+   terraform init
+   ```
+
+3. **Configure Variables:**
+   Create a `terraform.tfvars` file to securely inject your core secrets (matching `app/config.py`):
+   ```hcl
+   api_key               = "sk_live_..."
+   stripe_secret_key     = "sk_live_..."
+   stripe_webhook_secret = "whsec_..."
+   supabase_url          = "https://xyz.supabase.co"
+   supabase_key          = "..."
+   redis_url             = "redis://..."
+   ```
+
+4. **Deploy the Infrastructure:**
+   ```bash
+   terraform apply
+   ```
+
+*Note: The provided Terraform files are a comprehensive skeleton. You will need to uncomment the resources and adjust VPC/Subnet IDs to match your specific AWS environment.*
+
+---
+
 ## Contributing
 We welcome contributions! The Universal Agent Economy OS is designed to be the definitive open-source standard for the agentic economy. 
 

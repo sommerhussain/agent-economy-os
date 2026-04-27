@@ -21,6 +21,18 @@ variable "app_name" {
   default     = "agent-economy-os"
 }
 
+variable "docker_image" {
+  description = "The Docker image URI to deploy (e.g., ECR/DockerHub)"
+  type        = string
+  default     = "uaeos/proxy:latest"
+}
+
+variable "container_port" {
+  description = "The port the container listens on (aligns with Dockerfile EXPOSE 8000)"
+  type        = number
+  default     = 8000
+}
+
 # ==========================================
 # Core Secrets (To be injected via CI/CD or Secret Manager, aligning with app/config.py)
 # ==========================================

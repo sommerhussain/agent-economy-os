@@ -56,6 +56,154 @@ provider "aws" {
 # It requires environment variables defined in app/config.py (API_KEY, STRIPE_SECRET_KEY, etc.),
 # similar to the setup in railway.toml.
 #
-# resource "aws_ecs_cluster" "uaeos_cluster" { ... }
-# resource "aws_ecs_task_definition" "uaeos_task" { ... }
-# resource "aws_ecs_service" "uaeos_service" { ... }
+# resource "aws_ecs_cluster" "uaeos_cluster" {
+#   name = "${var.app_name}-${var.environment}-cluster"
+# }
+
+# resource "aws_ecs_task_definition" "uaeos_task" {
+#   family                   = "${var.app_name}-${var.environment}-task"
+#   network_mode             = "awsvpc"
+#   requires_compatibilities = ["FARGATE"]
+#   cpu                      = "256"
+#   memory                   = "512"
+#   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+#
+#   container_definitions = jsonencode([
+#     {
+#       name      = "${var.app_name}"
+#       image     = var.docker_image
+#       essential = true
+#       portMappings = [
+#         {
+#           containerPort = var.container_port
+#           hostPort      = var.container_port
+#           protocol      = "tcp"
+#         }
+#       ]
+#       environment = [
+#         { name = "ENVIRONMENT", value = var.environment },
+#         { name = "API_KEY", value = var.api_key },
+#         { name = "STRIPE_SECRET_KEY", value = var.stripe_secret_key },
+#         { name = "STRIPE_WEBHOOK_SECRET", value = var.stripe_webhook_secret },
+#         { name = "SUPABASE_URL", value = var.supabase_url },
+#         { name = "SUPABASE_KEY", value = var.supabase_key },
+#         { name = "REDIS_URL", value = var.redis_url }
+#       ]
+#       logConfiguration = {
+#         logDriver = "awslogs"
+#         options = {
+#           "awslogs-group"         = "/ecs/${var.app_name}-${var.environment}"
+#           "awslogs-region"        = var.aws_region
+#           "awslogs-stream-prefix" = "ecs"
+#         }
+#       }
+#     }
+#   ])
+# }
+
+# resource "aws_ecs_service" "uaeos_service" {
+#   name            = "${var.app_name}-${var.environment}-service"
+#   cluster         = aws_ecs_cluster.uaeos_cluster.id
+#   task_definition = aws_ecs_task_definition.uaeos_task.arn
+#   desired_count   = 2
+#   launch_type     = "FARGATE"
+#
+#   network_configuration {
+#     subnets         = aws_subnet.private[*].id
+#     security_groups = [aws_security_group.ecs_tasks.id]
+#   }
+#
+#   load_balancer {
+#     target_group_arn = aws_lb_target_group.uaeos_tg.arn
+#     container_name   = var.app_name
+#     container_port   = var.container_port
+#   }
+# }
+
+# ==========================================
+# 5. Load Balancing & Security Groups
+# ==========================================
+# Exposes the proxy to the internet securely, routing traffic to the ECS tasks.
+
+# resource "aws_security_group" "alb_sg" {
+#   name        = "${var.app_name}-${var.environment}-alb-sg"
+#   description = "Allow inbound HTTP/HTTPS traffic"
+#   vpc_id      = aws_vpc.main.id
+#
+#   ingress {
+#     from_port   = 80
+#     to_port     = 80
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+#   
+#   ingress {
+#     from_port   = 443
+#     to_port     = 443
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+#
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
+
+# resource "aws_security_group" "ecs_tasks" {
+#   name        = "${var.app_name}-${var.environment}-ecs-tasks-sg"
+#   description = "Allow inbound traffic from ALB only"
+#   vpc_id      = aws_vpc.main.id
+#
+#   ingress {
+#     from_port       = var.container_port
+#     to_port         = var.container_port
+#     protocol        = "tcp"
+#     security_groups = [aws_security_group.alb_sg.id]
+#   }
+#
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
+
+# resource "aws_lb" "uaeos_alb" {
+#   name               = "${var.app_name}-${var.environment}-alb"
+#   internal           = false
+#   load_balancer_type = "application"
+#   security_groups    = [aws_security_group.alb_sg.id]
+#   subnets            = aws_subnet.public[*].id
+# }
+
+# resource "aws_lb_target_group" "uaeos_tg" {
+#   name        = "${var.app_name}-${var.environment}-tg"
+#   port        = var.container_port
+#   protocol    = "HTTP"
+#   vpc_id      = aws_vpc.main.id
+#   target_type = "ip"
+#
+#   health_check {
+#     path                = "/health"
+#     healthy_threshold   = 3
+#     unhealthy_threshold = 3
+#     timeout             = 5
+#     interval            = 30
+#     matcher             = "200"
+#   }
+# }
+
+# resource "aws_lb_listener" "http" {
+#   load_balancer_arn = aws_lb.uaeos_alb.arn
+#   port              = "80"
+#   protocol          = "HTTP"
+#
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.uaeos_tg.arn
+#   }
+# }
