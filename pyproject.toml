@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uaeos-sdk"
-version = "0.1.1"
+version = "0.1.9"
 description = "Universal Agent Economy OS - Official Python SDK for MCP/A2A-native credential injection and x402 micropayments."
 authors = [
     {name = "UAE OS Team", email = "hello@uaeos.dev"}

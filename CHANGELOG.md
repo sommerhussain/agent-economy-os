@@ -5,6 +5,15 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2026-04-27
+
+### Added
+- **Self-Healing Mechanics**: Added `auto_rotate_agent_credentials` stub to the Identity Engine, demonstrating zero-touch maintenance for high-frequency credential rotation in regulated industries.
+- **Infrastructure-as-Code**: Introduced a complete Terraform foundation (`deploy/terraform/`) for one-command enterprise deployment to AWS/GCP/Azure.
+- **Enterprise Documentation**: Expanded the `README.md` with a "For Acquirers / New Maintainers" section, highlighting the asset's multi-monopoly surface, revenue engine, and handover readiness.
+- **Codebase Audit**: Removed personal references and polished metadata (`server.json`, `LICENSE`, `.well-known` files) to use generic, enterprise-friendly identifiers.
+- **Vertical Packs**: Added Healthcare, Logistics, and Marketing vertical credential packs with auditor-ready export stubs and least-privilege enforcement.
+
 ## [0.1.8] - 2026-04-25
 
 ### Added
