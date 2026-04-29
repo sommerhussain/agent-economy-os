@@ -34,6 +34,22 @@ variable "container_port" {
 }
 
 # ==========================================
+# Supabase Specific Variables
+# ==========================================
+
+variable "supabase_org_id" {
+  description = "Supabase Organization ID for provisioning new projects"
+  type        = string
+  default     = "your-org-id"
+}
+
+variable "supabase_db_password" {
+  description = "Database password for the Supabase PostgreSQL instance"
+  type        = string
+  sensitive   = true
+}
+
+# ==========================================
 # Core Secrets (To be injected via CI/CD or Secret Manager, aligning with app/config.py)
 # ==========================================
 
@@ -56,18 +72,21 @@ variable "stripe_webhook_secret" {
 }
 
 variable "supabase_url" {
-  description = "Supabase project URL for the Identity Engine (SUPABASE_URL)"
+  description = "Supabase project URL for the Identity Engine (SUPABASE_URL). Can be overridden if using an existing project."
   type        = string
+  default     = ""
 }
 
 variable "supabase_key" {
-  description = "Supabase service role key (SUPABASE_KEY)"
+  description = "Supabase service role key (SUPABASE_KEY). Can be overridden if using an existing project."
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "redis_url" {
-  description = "Redis connection string (REDIS_URL)"
+  description = "Redis connection string (REDIS_URL). Can be overridden if using an existing cluster."
   type        = string
   sensitive   = true
+  default     = ""
 }

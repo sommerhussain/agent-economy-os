@@ -2,7 +2,7 @@
 # 
 # This configuration provides a one-command deployment skeleton for enterprise acquirers.
 # It is designed to seamlessly deploy the containerized application defined in our Dockerfile,
-# mirroring the simplicity of our existing railway.toml but for AWS/GCP/Azure environments.
+# mirroring the simplicity of our existing railway.toml but for AWS/GCP/Azure/Railway environments.
 # 
 # Strategic Value: Demonstrates immediate enterprise readiness, scalability, and 
 # infrastructure-as-code best practices for the entire agent-economy-os asset.
@@ -14,10 +14,15 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    # Placeholder for Supabase provider if managing Supabase natively
+    # Supabase Provider for Identity Engine & Schema Management
     # supabase = {
     #   source = "supabase/supabase"
     #   version = "~> 1.0"
+    # }
+    # Railway Provider for PaaS Deployment (aligns with railway.toml)
+    # railway = {
+    #   source = "terraform-community-providers/railway"
+    #   version = "~> 0.3"
     # }
   }
 }
@@ -33,33 +38,96 @@ provider "aws" {
 # resource "aws_vpc" "main" { ... }
 
 # ==========================================
-# 2. Database & Identity (Supabase Placeholder)
+# 2. Database & Identity (Supabase Schema)
 # ==========================================
 # The Identity Engine relies on Supabase for agent registration and credential storage.
-# In a self-hosted enterprise environment, this could be an RDS PostgreSQL instance 
-# or a dedicated Supabase project.
+# This section provisions the project and applies the core schema.
 # 
-# resource "aws_db_instance" "uaeos_db" { ... }
+# resource "supabase_project" "uaeos_db" {
+#   organization_id   = var.supabase_org_id
+#   name              = "${var.app_name}-${var.environment}-db"
+#   database_password = var.supabase_db_password
+#   region            = var.aws_region
+# }
+#
+# resource "supabase_settings" "uaeos_settings" {
+#   project_ref = supabase_project.uaeos_db.id
+#   api         = true
+# }
+#
+# # Apply the core schema for the Identity Engine
+# resource "supabase_sql" "core_schema" {
+#   project_ref = supabase_project.uaeos_db.id
+#   sql         = file("../../supabase/migrations/20231001_initial_schema.sql")
+# }
 
 # ==========================================
-# 3. Caching & Rate Limiting (Redis Placeholder)
+# 3. Caching & Rate Limiting (Redis)
 # ==========================================
 # The proxy uses Redis for rate limiting, caching, and analytics (app/cache.py, app/rate_limit.py).
 # This replaces the in-memory fallback for production horizontal scaling.
 # 
-# resource "aws_elasticache_cluster" "uaeos_redis" { ... }
+# resource "aws_elasticache_cluster" "uaeos_redis" {
+#   cluster_id           = "${var.app_name}-${var.environment}-redis"
+#   engine               = "redis"
+#   node_type            = "cache.t3.micro"
+#   num_cache_nodes      = 1
+#   parameter_group_name = "default.redis7"
+#   engine_version       = "7.0"
+#   port                 = 6379
+# }
 
 # ==========================================
-# 4. Application Service (Container Deployment)
+# 4. Railway-Specific Config (PaaS Alternative)
 # ==========================================
-# This service runs the FastAPI proxy. It builds from the root Dockerfile.
-# It requires environment variables defined in app/config.py (API_KEY, STRIPE_SECRET_KEY, etc.),
-# similar to the setup in railway.toml.
+# For teams preferring PaaS over raw AWS ECS, this mirrors our railway.toml.
+# It deploys the Dockerfile and sets the required environment variables.
+#
+# resource "railway_project" "uaeos_project" {
+#   name = "${var.app_name}-${var.environment}"
+# }
+#
+# resource "railway_environment" "production" {
+#   project_id = railway_project.uaeos_project.id
+#   name       = "production"
+# }
+#
+# resource "railway_service" "fastapi_core" {
+#   project_id     = railway_project.uaeos_project.id
+#   name           = "uaeos-proxy"
+#   source_repo    = "your-org/agent-economy-os"
+#   builder        = "DOCKERFILE"
+#   dockerfile_path= "Dockerfile"
+#   start_command  = "sh -c 'uvicorn app.main:app --host 0.0.0.0 --port $${PORT:-8000}'"
+# }
+#
+# resource "railway_variable" "env_vars" {
+#   for_each = {
+#     ENVIRONMENT           = var.environment
+#     API_KEY               = var.api_key
+#     STRIPE_SECRET_KEY     = var.stripe_secret_key
+#     STRIPE_WEBHOOK_SECRET = var.stripe_webhook_secret
+#     SUPABASE_URL          = supabase_project.uaeos_db.api_url
+#     SUPABASE_KEY          = supabase_project.uaeos_db.service_role_key
+#     REDIS_URL             = "redis://${aws_elasticache_cluster.uaeos_redis.cache_nodes[0].address}:6379"
+#   }
+#   project_id     = railway_project.uaeos_project.id
+#   environment_id = railway_environment.production.id
+#   service_id     = railway_service.fastapi_core.id
+#   name           = each.key
+#   value          = each.value
+# }
+
+# ==========================================
+# 5. Application Service (AWS ECS Container Deployment)
+# ==========================================
+# This service runs the FastAPI proxy on AWS ECS Fargate. It builds from the root Dockerfile.
+# It requires environment variables defined in app/config.py (API_KEY, STRIPE_SECRET_KEY, etc.).
 #
 # resource "aws_ecs_cluster" "uaeos_cluster" {
 #   name = "${var.app_name}-${var.environment}-cluster"
 # }
-
+#
 # resource "aws_ecs_task_definition" "uaeos_task" {
 #   family                   = "${var.app_name}-${var.environment}-task"
 #   network_mode             = "awsvpc"
@@ -100,7 +168,7 @@ provider "aws" {
 #     }
 #   ])
 # }
-
+#
 # resource "aws_ecs_service" "uaeos_service" {
 #   name            = "${var.app_name}-${var.environment}-service"
 #   cluster         = aws_ecs_cluster.uaeos_cluster.id
@@ -121,7 +189,7 @@ provider "aws" {
 # }
 
 # ==========================================
-# 5. Load Balancing & Security Groups
+# 6. Load Balancing & Security Groups
 # ==========================================
 # Exposes the proxy to the internet securely, routing traffic to the ECS tasks.
 
