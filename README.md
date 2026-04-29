@@ -512,9 +512,14 @@ The Universal Agent Economy OS is architected with a **pure build-to-sell** phil
 ### Current Status (v0.1.9)
 The platform is currently in a production-ready **v0.1.9** state. It has successfully evolved from a simple credential injection proxy into a comprehensive, multi-vertical agent economy core. The test suite maintains 93%+ coverage across all core logic, ensuring stability during handover.
 
+### Architecture & Security Posture
+For a deep dive into the system's architecture, request lifecycle, and advanced security mitigations, please review the **[Architecture & Security Guide](docs/architecture.md)**. 
+
+**Key Security Highlight:** The OS features robust protection against **Model Context Protocol (MCP) STDIO vulnerabilities**. By utilizing server-side credential injection and strict least-privilege scope enforcement, raw API keys never touch potentially vulnerable agent STDIO streams, neutralizing a major threat vector in enterprise agent deployments.
+
 ### Why this Asset is Attractive
 1. **Multi-Monopoly Surface**: It is not just a proxy. It is an Identity Engine, a Settlement Engine, and a marketplace of Vertical Credential Packs (Finance, Healthcare, Logistics, Marketing, On-Chain).
-2. **Zero-Touch Maintenance**: Built-in self-healing mechanics (like the `auto_rotate_agent_credentials` stub) demonstrate how the system can autonomously manage high-frequency credential rotation for regulated industries.
+2. **Zero-Touch Maintenance**: Built-in self-healing mechanics (like the `auto_rotate_agent_credentials` stub) demonstrate how the system can autonomously manage high-frequency credential rotation for regulated industries, drastically reducing key-person risk.
 3. **Enterprise Compliance**: Stubs for SOC2, HIPAA, and GDPR auditor-ready exports are built directly into the vertical packs, reducing compliance friction for acquirers.
 4. **Revenue Engine**: The native x402 middleware, usage limits, and paid discovery loops are pre-configured to generate revenue from day one.
 5. **Infrastructure-as-Code**: The included Terraform foundation (`deploy/terraform/`) ensures the entire stack can be spun up in an enterprise AWS/GCP/Azure environment with a single command.
