@@ -14,7 +14,7 @@ from app.verticals.compute import ComputeCredentialPack
 from app.identity.onchain import OnChainCredentialPack
 from app.verticals.compliance import ComplianceCredentialPack
 from app.verticals.legal import LegalCredentialPack
-from app.verticals.healthcare import HealthcareCredentialPack
+from app.verticals.healthcare import HealthcareCredentialPack, export_healthcare_audit_log
 from app.verticals.logistics import LogisticsCredentialPack
 from app.verticals.marketing import MarketingCredentialPack
 
