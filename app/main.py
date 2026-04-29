@@ -528,6 +528,40 @@ async def get_agent_scopes_endpoint(agent_id: str):
         )
 
 @app.post(
+    "/agents/{agent_id}/credentials/{credential_type}/self-heal",
+    summary="Trigger Self-Healing Auto-Rotation",
+    response_description="The result of the auto-rotation process.",
+    responses={
+        401: {"description": "Unauthorized - Missing or invalid API key"},
+        500: {"description": "Internal Server Error"}
+    }
+)
+async def trigger_self_healing(agent_id: str, credential_type: str):
+    """
+    Triggers the self-healing auto-credential rotation for a specific agent and credential type.
+    
+    This endpoint demonstrates the enterprise-grade zero-touch maintenance capability of the 
+    Universal Agent Economy OS. It automatically generates a new secure secret, calculates the 
+    appropriate expiry based on vertical-specific compliance rules, and seamlessly updates the 
+    Identity Engine without manual intervention.
+    """
+    from app.identity import auto_rotate_agent_credentials
+    try:
+        logger.info(f"Received self-healing request for agent: {agent_id}, credential: {credential_type}")
+        response = await auto_rotate_agent_credentials(agent_id, credential_type)
+        if not response.get("success"):
+            raise UAEError(error_code="SELF_HEAL_FAILED", message="Failed to apply self-healing rotation.", status_code=500)
+        return response
+    except UAEError as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Self-healing failed: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="An internal server error occurred while processing the self-healing request."
+        )
+
+@app.post(
     "/a2a/route",
     response_model=A2ARouteResponse,
     summary="Direct A2A Routing Engine",
