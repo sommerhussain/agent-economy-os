@@ -92,13 +92,28 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
-# 4. Authentication Middleware
-# Protects all routes except public ones
+# 4. Authentication Middleware - ONLY protect non-public routes
 @app.middleware("http")
 async def conditional_auth_middleware(request: Request, call_next):
-    public_paths = ["/", "/health", "/metrics", "/verticals", "/stats"]
-    if request.url.path in public_paths or request.url.path.startswith("/.well-known/"):
+    """Skip authentication for public discovery and health check paths."""
+    public_paths = [
+        "/",
+        "/health",
+        "/metrics",
+        "/verticals",
+        "/stats",
+        "/docs",
+        "/openapi.json",
+        "/redoc",
+    ]
+    if (
+        request.url.path in public_paths
+        or request.url.path.startswith("/.well-known/")
+        or request.url.path.startswith("/static/")
+    ):
         return await call_next(request)
+
+    # All other routes require authentication
     return await api_key_middleware(request, call_next)
 
 @app.exception_handler(UAEError)
