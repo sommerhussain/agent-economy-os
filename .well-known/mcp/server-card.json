@@ -1,0 +1,7 @@
+{
+  "name": "Agentrails",
+  "description": "MCP/A2A-native secure credential injection proxy + native x402 micropayment gateway for autonomous agents. Provides least-privilege credential access and automatic payments.",
+  "version": "0.1.10",
+  "url": "https://agent-economy-os-production.up.railway.app",
+  "capabilities": ["credential-injection", "x402-payments", "vertical-packs"]
+}
