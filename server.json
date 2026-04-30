@@ -1,9 +1,9 @@
 {
     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-    "name": "io.github.universal-agent-economy/universal-agent-economy-os",
+    "name": "io.github.agentrails/agent-economy-os",
     "description": "Foundational MCP/A2A-native platform for credential injection, x402 micropayments, and A2A routing.",
     "repository": {
-      "url": "https://github.com/universal-agent-economy/agent-economy-os",
+      "url": "https://github.com/agentrails/agent-economy-os",
       "source": "github"
     },
     "version": "0.1.10",

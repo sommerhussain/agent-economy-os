@@ -95,7 +95,7 @@ provider "aws" {
 # resource "railway_service" "fastapi_core" {
 #   project_id     = railway_project.uaeos_project.id
 #   name           = "uaeos-proxy"
-#   source_repo    = "your-org/agent-economy-os"
+#   source_repo    = "agentrails/agent-economy-os"
 #   builder        = "DOCKERFILE"
 #   dockerfile_path= "Dockerfile"
 #   start_command  = "sh -c 'uvicorn app.main:app --host 0.0.0.0 --port $${PORT:-8000}'"

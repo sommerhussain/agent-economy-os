@@ -2,7 +2,7 @@
   "name": "Universal Agent Economy OS",
   "description": "A foundational MCP/A2A-native core platform for secure credential injection, x402 micropayments, and autonomous agent routing.",
   "version": "0.1.10",
-  "author": "Universal Agent Economy",
+  "author": "agentrails",
   "license": "MIT",
   "tags": [
     "mcp",
@@ -27,7 +27,10 @@
       "compute",
       "onchain",
       "compliance",
-      "legal"
+      "legal",
+      "healthcare",
+      "logistics",
+      "marketing"
     ]
   },
   "endpoints": {
@@ -38,5 +41,5 @@
     "stats": "https://agent-economy-os-production.up.railway.app/stats",
     "verticals": "https://agent-economy-os-production.up.railway.app/verticals"
   },
-  "sdk": "https://github.com/universal-agent-economy/agent-economy-os"
+  "sdk": "https://github.com/agentrails/agent-economy-os"
 }

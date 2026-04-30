@@ -33,9 +33,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/uaeos/uaeos"
-Repository = "https://github.com/uaeos/uaeos"
-Documentation = "https://github.com/uaeos/uaeos#readme"
+Homepage = "https://github.com/agentrails/agent-economy-os"
+Repository = "https://github.com/agentrails/agent-economy-os"
+Documentation = "https://github.com/agentrails/agent-economy-os#readme"
 
 [tool.setuptools.packages.find]
 where = ["sdk"]

@@ -8,7 +8,7 @@
   },
   "version": "0.1.10",
   "description": "Universal Agent Economy OS - MCP Server for x402 micropayments, credential injection, and agent-to-agent routing.",
-  "vendor": "Universal Agent Economy",
+  "vendor": "agentrails",
   "tags": [
     "mcp",
     "a2a",
@@ -32,6 +32,9 @@
     "compute",
     "onchain",
     "compliance",
-    "legal"
+    "legal",
+    "healthcare",
+    "logistics",
+    "marketing"
   ]
 }
